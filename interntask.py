@@ -233,6 +233,10 @@ for i in temp:
 for i in bexception:
 	O1 =  filter(lambda x: ((x["d4p1:AppointmentDate"].split("T")[-1] <= i[0]) or (x["d4p1:AppointmentDate"].split("T")[-1] >= i[1])),O1)
 
+if(len(O1)==0):
+	O1 = ["no slots available"]
+else:
+	O1 = map(lambda x: "time-" + x["d4p1:AppointmentDate"].split("T")[-1] + " id -" + x["d4p1:Id"] ,O1)
 
 #filtering based on dates
 for i in Output1 :
@@ -285,6 +289,8 @@ for i in bexception:
 
 if(len(O2)==0):
 	O2 = ["no slots available"]
+else:
+	O2 = map(lambda x: "time-" + x["d4p1:AppointmentDate"].split("T")[-1] + " id -" + x["d4p1:Id"] ,O2)
 
 #filtering based on dates
 for i in Output2 :
@@ -304,3 +310,4 @@ for i in Output2:
 	print(i["date"])
 	print(i["date_slots"])
 	print("\n")
+
