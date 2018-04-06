@@ -1,3 +1,5 @@
+import numpy as np
+
 
 #appointment slots data
 Appointment = [
@@ -205,22 +207,32 @@ for i in range(start,end):
 	    })
 
 #getting the timeslot for both patient1
-b1 = Preference["preferred_datetimes"][0]["preferred_times"][0]["start_time"]
-b2 = Preference["preferred_datetimes"][0]["preferred_times"][0]["end_time"]
-b3 = Preference["preferred_datetimes"][0]["preferred_times"][1]["start_time"]
-b4 = Preference["preferred_datetimes"][0]["preferred_times"][1]["end_time"]
-b5 = Preference["preferred_datetimes"][0]["time_exceptions"][0]["start_time"]
-b6 = Preference["preferred_datetimes"][0]["time_exceptions"][0]["end_time"]
+b = []
+bexception = []
 
-#finding the preferred time_slots for patient1
-tempO = filter(lambda x: (((x["d4p1:AppointmentDate"].split("T")[-1] >= b1) & (x["d4p1:AppointmentDate"].split("T")[-1]<=b2)) or ((x["d4p1:AppointmentDate"].split("T")[-1] >= b3) & (x["d4p1:AppointmentDate"].split("T")[-1]<=b4))) ,Appointment)
-tempO1 = filter(lambda x: ((x["d4p1:AppointmentDate"].split("T")[-1] <= b5) or (x["d4p1:AppointmentDate"].split("T")[-1] >= b6)), tempO)
+alpha = Preference["preferred_datetimes"][0]["preferred_times"]
+beta = Preference["preferred_datetimes"][0]["time_exceptions"]
 
-O1 = map(lambda x: "time-" + x["d4p1:AppointmentDate"].split("T")[-1] + " id -" + x["d4p1:Id"] ,tempO1)
+for i in alpha:
+	b.append([i["start_time"],i["end_time"]])
 
-#if no slots available 
-if(O1 == []):
-	O1.append("no slots available")
+for i in beta:
+	bexception.append([i["start_time"],i["end_time"]])
+
+temp = []
+
+for i in range(0,len(b)):
+	temp.append(filter(lambda x: (((x["d4p1:AppointmentDate"].split("T")[-1] >= b[i][0]) & (x["d4p1:AppointmentDate"].split("T")[-1]<=b[i][1]))),Appointment))
+
+
+O1 = temp[0]
+
+for i in temp:
+	O1 = np.union1d(O1,i)
+
+for i in bexception:
+	O1 =  filter(lambda x: ((x["d4p1:AppointmentDate"].split("T")[-1] <= i[0]) or (x["d4p1:AppointmentDate"].split("T")[-1] >= i[1])),O1)
+
 
 #filtering based on dates
 for i in Output1 :
@@ -243,17 +255,36 @@ for i in Output1:
 
 
 
+
 #getting the timeslot for both patient2
-c1 = Preference["preferred_datetimes"][1]["preferred_times"][0]["start_time"]
-c2 = Preference["preferred_datetimes"][1]["preferred_times"][0]["end_time"]
+b = []
+bexception = []
 
-#finding the preferred time_slots for patient1 using !! lambda functions
-temp = filter(lambda x: (((x["d4p1:AppointmentDate"].split("T")[-1] >= c1) & (x["d4p1:AppointmentDate"].split("T")[-1]<=c2))) ,Appointment)
-O2 = map(lambda x: x.split("T")[-1] ,temp)
+alpha = Preference["preferred_datetimes"][1]["preferred_times"]
+beta = Preference["preferred_datetimes"][1]["time_exceptions"]
 
-#if no slots available
-if(O2 == []):
-	O2.append("no slots available")
+for i in alpha:
+	b.append([i["start_time"],i["end_time"]])
+
+for i in beta:
+	bexception.append([i["start_time"],i["end_time"]])
+
+temp = []
+
+for i in range(0,len(b)):
+	temp.append(filter(lambda x: (((x["d4p1:AppointmentDate"].split("T")[-1] >= b[i][0]) & (x["d4p1:AppointmentDate"].split("T")[-1]<=b[i][1]))),Appointment))
+
+
+O2 = temp[0]
+
+for i in temp:
+	O2 = np.union1d(O2,i)
+
+for i in bexception:
+	O2 =  filter(lambda x: ((x["d4p1:AppointmentDate"].split("T")[-1] <= i[0]) or (x["d4p1:AppointmentDate"].split("T")[-1] >= i[1])),O2)
+
+if(len(O2)==0):
+	O2 = ["no slots available"]
 
 #filtering based on dates
 for i in Output2 :
@@ -273,4 +304,3 @@ for i in Output2:
 	print(i["date"])
 	print(i["date_slots"])
 	print("\n")
-
